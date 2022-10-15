@@ -1,17 +1,22 @@
 #' Build 'ggsurvfit' Object
 #'
+#' @description
 #' Function takes an object created with `ggsurvfit()` or `ggcuminc()` and
 #' prepares the plot for printing.
 #' If a plot also has a risk table, this function will build the risk table
 #' plots and return them either as list of plots or combined
 #' using `patchwork::wrap_plots()`.
 #'
+#' This can be particularly useful when you would like to place
+#' figures with risk tables side-by-side.
+#'
 #' @param x an object of class 'ggsurvfit' or 'ggcuminc'
 #' @param combine_plots logical indicating whether to combine the primary plot
-#' and the risk tables. When `TRUE`, plots are combined with `patchwork::wrap_plots()`.
+#' and the risk tables. When `TRUE`, plot and risk table(s) are combined with
+#' `patchwork::wrap_plots()`.
 #' When `FALSE` and the plot has risk tables, they are returned in a list of
 #' gtable grobs.
-#' Default is `FALSE`.
+#' Default is `TRUE`.
 #'
 #' @return a list of ggplot2 objects or a single ggplot2 object
 #' @export
@@ -22,12 +27,12 @@
 #'   survfit2(Surv(time, status) ~ surg, df_colon) %>%
 #'   ggsurvfit() +
 #'   add_risktable() +
-#'   ggplot2::scale_y_continuous(limits = c(0, 1))
+#'   scale_y_continuous(limits = c(0, 1))
 #'
 #' # build plots
-#' built_p <- ggsurvfit_build(p)
+#' built_p <- ggsurvfit_build(p, combine_plots = FALSE)
 #'
-#' # combine plots
+#' # reconstruct original figure print with risktables
 #' patchwork::wrap_plots(
 #'   built_p[[1]],
 #'   built_p[[2]],
@@ -35,7 +40,15 @@
 #'   ncol = 1,
 #'   heights = c(0.70, 0.15, 0.15)
 #' )
-ggsurvfit_build <- function(x, combine_plots = FALSE) {
+#'
+#' # place plots side-by-side (plots must be built before placement with patchwork)
+#' patchwork::wrap_plots(
+#'   ggsurvfit_build(p),
+#'   ggsurvfit_build(p),
+#'   ncol = 2
+#' )
+
+ggsurvfit_build <- function(x, combine_plots = TRUE) {
   risktable_args <- .extract_arguments_from_attr(x, attr_name = "add_risktable")
   risktable_symbol_args <- .extract_arguments_from_attr(x, attr_name = "add_risktable_strata_symbol")
 

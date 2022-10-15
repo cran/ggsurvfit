@@ -6,7 +6,6 @@ knitr::opts_chunk$set(
 
 ## -----------------------------------------------------------------------------
 library(ggsurvfit)
-library(ggplot2)
 library(patchwork)
 
 gg_theme_default1 <- 

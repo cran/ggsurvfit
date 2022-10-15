@@ -4,8 +4,10 @@
 \name{ggsurvfit-package}
 \alias{ggsurvfit-package}
 \alias{_PACKAGE}
-\title{ggsurvfit: Easy and Flexible Time-to-Event Figures}
+\title{ggsurvfit: Flexible Time-to-Event Figures}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Ease the creation of time-to-event (i.e. survival) endpoint figures. The modular functions create figures ready for publication. Each of the functions that add to or modify the figure are written as proper 'ggplot2' geoms or stat methods, allowing the functions from this package to be combined with any function or customization from 'ggplot2' and other 'ggplot2' extension packages.
 }
 \seealso{
@@ -23,6 +25,8 @@ Useful links:
 Authors:
 \itemize{
   \item Mark Baillie \email{bailliem@gmail.com}
+  \item Steven Haesendonckx \email{shaesen2@its.jnj.com} (\href{https://orcid.org/0000-0001-8222-3686}{ORCID})
+  \item Tim Treis \email{tim.treis@outlook.de} (\href{https://orcid.org/0000-0002-9686-4799}{ORCID})
 }
 
 }

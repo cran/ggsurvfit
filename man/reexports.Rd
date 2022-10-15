@@ -6,7 +6,9 @@
 \alias{survfit}
 \alias{Surv}
 \alias{\%>\%}
+\alias{grid.draw}
 \alias{\%+\%}
+\alias{ggplot_add}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -16,7 +18,9 @@ below to see their documentation.
 \describe{
   \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}}
 
-  \item{ggplot2}{\code{\link[ggplot2:gg-add]{\%+\%}}}
+  \item{ggplot2}{\code{\link[ggplot2:gg-add]{\%+\%}}, \code{\link[ggplot2]{ggplot_add}}}
+
+  \item{grid}{\code{\link[grid]{grid.draw}}}
 
   \item{survival}{\code{\link[survival]{Surv}}, \code{\link[survival]{survfit}}}
 }}

@@ -59,9 +59,17 @@ ggsurvfit <- function(x, type = "survival",
         "i" = "Create the object with {.code survfit2()}.")
     )
   }
+  if (inherits(x, "survfitms")) {
+    cli_abort(c(
+      "!" = "{.code ggsurvfit()} cannot be used to plot objects of class {.cls {class(x)}}.",
+      "i" = "Use {.code ggcuminc()} for competing risks cumulative incidence plotting."
+    ))
+  }
 
   # prep data to be passed to ggplot() -----------------------------------------
-  df <-  tidy_survfit(x = x, type = type)
+  df <-
+    tidy_survfit(x = x, type = type) %>%
+    dplyr::mutate(survfit = c(list(x), rep_len(list(), dplyr::n() - 1L)))
 
   # construct aes() call -------------------------------------------------------
   aes_args <- .construct_aes(df, linetype_aes = linetype_aes)
@@ -103,7 +111,8 @@ ggsurvfit <- function(x, type = "survival",
     list(
       x = rlang::expr(.data$time),
       y = rlang::expr(.data$estimate),
-      is_ggsurvfit = TRUE
+      is_ggsurvfit = TRUE,
+      survfit = rlang::expr(.data$survfit)
     )
 
   if ("monotonicity_type" %in% names(df)) {
@@ -176,19 +185,21 @@ ggsurvfit <- function(x, type = "survival",
   # extract formula and data ---------------------------------------------------
   if (inherits(x, "survfit2")) {
     formula <- .extract_formula_from_survfit(x)
+    formula_lhs <- formula %>% rlang::f_lhs()
     data <- .extract_data_from_survfit(x)
   }
   else if (inherits(x, "tidycuminc")) {
     formula <- x$formula
+    formula_lhs <- formula %>% rlang::f_lhs()
     data <- x$data
   } else {
-    formula <- data <- NULL
+    formula <- formula_lhs <- data <- NULL
   }
 
   # extract time variable ------------------------------------------------------
-  if (!is.null(formula)) {
+  if (!rlang::is_empty(formula_lhs) && !rlang::is_empty(all.vars(formula_lhs))) {
     time_variable <-
-      formula %>%
+      formula_lhs %>%
       all.vars() %>%
       `[`(1) %>%
       {
@@ -201,7 +212,19 @@ ggsurvfit <- function(x, type = "survival",
   }
 
   # return time label ----------------------------------------------------------
-  attr(data[[time_variable]], "label") %||%
-    time_variable %||%
-    "time"
+  switch( # using the CDISC variable as default label, if present
+    !is.null(data) && !is.null(formula) &&
+      .is_CDISC_ADTTE(data) &&
+      all(c("PARAM", "PARAMCD") %in% names(data)) &&
+      !any(c("PARAM", "PARAMCD") %in% all.vars(formula)) &&
+      .is_PARAM_consistent(formula, data),
+    data[["PARAM"]] %>%
+      unique() %>%
+      paste(collapse = ", ")
+  ) %||%
+    switch(
+      !is.null(time_variable) && !is.null(data) && time_variable %in% names(data),
+      attr(data[[time_variable]], "label")
+    ) %||%
+    "Time"
 }
