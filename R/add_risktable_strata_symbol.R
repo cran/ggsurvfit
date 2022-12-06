@@ -16,38 +16,50 @@
 #' @examples
 #' p <-
 #'   survfit2(Surv(time, status) ~ sex, data = df_lung) %>%
-#'   ggsurvfit(size = 1) +
+#'   ggsurvfit(linewidth = 1) +
 #'   add_confidence_interval() +
 #'   add_risktable(risktable_group = "risktable_stats")
 #'
 #'  p + add_risktable_strata_symbol()
 #'  p + add_risktable_strata_symbol(symbol = "\U25CF", size = 10)
-
+#' @inherit ggsurvfit seealso
 add_risktable_strata_symbol <- function(symbol = NULL, size = 15, face = "bold", vjust = 0.3, ...) {
+  add_risktable_strata_symbol_empty_list <- list()
   rlang::inject(
-    ggplot2::layer(
-      data = NULL, mapping = NULL,
-      stat = StatBlankSurvfit, geom = "blank",
-      position = "identity",
-      show.legend = NA, inherit.aes = TRUE,
-      params = list()
-    ) %>%
-      structure(
-        "add_risktable_strata_symbol" =
-          list(symbol = symbol %||% "\U25AC",
-               size = size, face = face, vjust = vjust,
-               !!!rlang::dots_list(...))
-      )
+    structure(add_risktable_strata_symbol_empty_list,
+              "add_risktable_strata_symbol" =
+                list(symbol = symbol %||% "\U25AC",
+                     face = face,
+                     vjust = vjust,
+                     size = size,
+                     !!!rlang::dots_list(...)
+                ),
+              class = "add_risktable_strata_symbol")
   )
 }
 
+#' @export
+ggplot_add.add_risktable_strata_symbol <- function (object, plot, object_name) {
+  update_add_risktable_strata_symbol(plot, object)
+}
+
+update_add_risktable_strata_symbol <- function(p, add_risktable_strata_symbol_empty_list) {
+  .is_ggsurvfit(p, fun_name = "add_risktable_strata_symbol()")
+  p +
+    rlang::inject(
+      structure(
+        ggplot2::geom_blank(),
+        add_risktable_strata_symbol =
+          !!attr(add_risktable_strata_symbol_empty_list, "add_risktable_strata_symbol")
+      )
+    )
+}
 
 
 # function returns a named vector the the strata level as the name and the hex color as the value
 .match_strata_level_to_color <- function(plot_build, risktable_group, risktable_symbol_args) {
   if (rlang::is_empty(risktable_symbol_args) ||
       risktable_group == "strata"  ||
-      # !"strata" %in% names(plot_build$plot$data) ||
       !"colour" %in% names(plot_build$data[[1]])) {
     if (!rlang::is_empty(risktable_symbol_args)) {
       cli_inform(

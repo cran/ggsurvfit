@@ -9,9 +9,6 @@ test_that("add_quantile() works with ggsurvfit()", {
       lapply(function(x) ggsurvfit(x) + add_quantile()),
     NA
   )
-  vdiffr::expect_doppelganger("sf1-quantile", lst_survfit2_quantile[[1]])
-  vdiffr::expect_doppelganger("sf2-quantile", lst_survfit2_quantile[[2]])
-  vdiffr::expect_doppelganger("sf3-quantile", lst_survfit2_quantile[[3]])
 
   expect_error(
     list(sf1, sf2, sf3) %>%
@@ -29,7 +26,7 @@ test_that("add_quantile() works with ggsurvfit()", {
     sf1 %>%
       tidy_survfit() %>%
       dplyr::select(x = time, y = estimate) %>%
-      quantile_km_in_stat(y_value = 0.5, x_value = NULL) %>%
+      .create_y_value_df(y_value = 0.5) %>%
       dplyr::pull(x) %>%
       `[`(1),
     quantile(sf1, probs = 0.5, conf.int = FALSE) %>% as.numeric()
@@ -39,7 +36,7 @@ test_that("add_quantile() works with ggsurvfit()", {
     sf2 %>%
       tidy_survfit() %>%
       dplyr::select(x = time, y = estimate, group = strata) %>%
-      quantile_km_in_stat(y_value = 0.5, x_value = NULL) %>%
+      .create_y_value_df(y_value = 0.5) %>%
       dplyr::pull(x) %>%
       setdiff(0),
     quantile(sf2, probs = 0.5, conf.int = FALSE) %>% as.numeric()
@@ -51,7 +48,7 @@ test_that("add_quantile() works with ggsurvfit()", {
     sf2_colon %>%
       tidy_survfit() %>%
       dplyr::select(x = time, y = estimate, group = strata) %>%
-      quantile_km_in_stat(y_value = 0.5, x_value = NULL) %>%
+      .create_y_value_df(y_value = 0.5) %>%
       dplyr::pull(x) %>%
       setdiff(0),
     quantile(sf2_colon, probs = 0.5, conf.int = FALSE) %>%
@@ -59,6 +56,14 @@ test_that("add_quantile() works with ggsurvfit()", {
       na.omit(),
     ignore_attr = TRUE
   )
+
+
+  skip_on_os("linux")
+  vdiffr::expect_doppelganger("sf1-quantile", lst_survfit2_quantile[[1]])
+  vdiffr::expect_doppelganger("sf2-quantile", lst_survfit2_quantile[[2]])
+  vdiffr::expect_doppelganger("sf3-quantile", lst_survfit2_quantile[[3]])
+
+
   vdiffr::expect_doppelganger(
     "sf2_colon-quantile",
     sf2_colon %>%
@@ -104,7 +109,6 @@ test_that("add_quantile() works with ggsurvfit()", {
       add_quantile(y_value = 0.25)
   )
 
-
   vdiffr::expect_doppelganger(
     "sf-mtcars-timing",
     survfit2(Surv(mpg, am) ~ 1, mtcars %>% dplyr::filter(cyl == 4)) %>%
@@ -112,18 +116,17 @@ test_that("add_quantile() works with ggsurvfit()", {
       add_quantile(y_value = 0.75) + # previous obs is a censor
       add_quantile(y_value = 0.5) # previous obs is an event
   )
-
 })
 
 test_that("add_quantile() errors with ggsurvfit()", {
-  expect_warning(
+  expect_error(
     (mtcars %>%
        ggplot2::ggplot(ggplot2::aes(y = mpg, x = hp)) +
        add_quantile()) %>%
       print()
   )
 
-  expect_warning(
+  expect_error(
     (sf2 %>%
       ggsurvfit() +
       add_quantile(y_value = c(0.2, 0.5))) %>% print()
@@ -146,15 +149,13 @@ test_that("add_quantile() works with ggcuminc()", {
     NA
   )
 
+  skip_on_os("linux")
   vdiffr::expect_doppelganger("cuminc1-quantile", lst_cuminc_quantile[[1]])
   vdiffr::expect_doppelganger("cuminc2-quantile", lst_cuminc_quantile[[2]])
   vdiffr::expect_doppelganger("cuminc3-quantile", lst_cuminc_quantile[[3]])
 })
 
 test_that("add_quantile() works with ggcuminc() and multiple outcomes", {
-  skip_on_os("linux")
-  skip_on_cran()
-
   expect_error(
     lst_cuminc_quantile_outcomes <-
       list(cuminc1, cuminc2, cuminc3) %>%
@@ -162,6 +163,7 @@ test_that("add_quantile() works with ggcuminc() and multiple outcomes", {
     NA
   )
 
+  skip_on_os("linux")
   vdiffr::expect_doppelganger("cuminc1-quantile-all-outcomes", lst_cuminc_quantile_outcomes[[1]])
   vdiffr::expect_doppelganger("cuminc2-quantile-all-outcomes", lst_cuminc_quantile_outcomes[[2]])
   vdiffr::expect_doppelganger("cuminc3-quantile-all-outcomes", lst_cuminc_quantile_outcomes[[3]])
