@@ -1,3 +1,11 @@
+# ggsurvfit 0.3.0
+
+* Added feature in `add_risktable(risktable_stats=)` to accept glue-like syntax---anything inside curly brackets will be evaluated. Users can now place multiple types of statistics on the same row, including allowing users to style the statistics in any way they like by including rounding/formatting functions within the curly brackets. Users may now also display estimates and confidence limits in the risk table. (#135)
+
+* Updated `ggsurvfit()`, `tidy_survfit()`, and `survfit2()` to handle `survival::coxph()` models. (#9)
+
+* Updated the default margin size when a risktable is added to a figure. Namely, the primary plot's bottom margin is set to zero, along with each risktable's top and bottom margin. Moreover, the top and bottom margin of the legend is also set to zero.
+
 # ggsurvfit 0.2.1
 
 * All calls to `aes()` have been migrated from `ggplot()` to the individual geoms, e.g. `geom_step()`. This was done because adding the `aes()` call in `ggplot()` led to an error when a later geom is added with user-created data. (#127)

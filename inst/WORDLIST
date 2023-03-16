@@ -15,6 +15,7 @@ Surv
 Survfit
 adjuvant
 behaviour
+cowplot
 cuminc
 geoms
 geom’
@@ -28,6 +29,7 @@ neoadjuvant
 pathologic
 randomisation
 risktable
+risktable's
 roundoff
 stairstep
 survfit
@@ -35,4 +37,5 @@ tablemab
 tibble
 tidycmprsk
 unremarkably
+unstratified
 vismab
