@@ -7,6 +7,8 @@ test_that("add_risktable_strata_symbol() works", {
       add_risktable(risktable_group = "risktable_stats"),
     NA
   )
+
+  skip_on_ci()
   vdiffr::expect_doppelganger(
     "add_risktable_strata_symbol-default",
     p + add_risktable_strata_symbol()
@@ -29,7 +31,9 @@ test_that("add_risktable_strata_symbol() works", {
     "add_risktable_strata_symbol-uni",
     ggsymbol_univariate
   )
+})
 
+test_that("add_risktable_strata_symbol() messaging works", {
   expect_message(
     print(survfit2(Surv(time, status) ~ sex, data = df_lung) %>%
             ggsurvfit(linewidth = 1) +
@@ -45,7 +49,6 @@ test_that("add_risktable_strata_symbol() works", {
     "has been ignored"
   )
 })
-
 
 test_that(".match_strata_level_to_color() works", {
   # survfit2 - Factor-----------------------------------------------------------

@@ -58,7 +58,8 @@ test_that("add_quantile() works with ggsurvfit()", {
   )
 
 
-  skip_on_os("linux")
+  # only check on mac
+  skip_on_ci()
   vdiffr::expect_doppelganger("sf1-quantile", lst_survfit2_quantile[[1]])
   vdiffr::expect_doppelganger("sf2-quantile", lst_survfit2_quantile[[2]])
   vdiffr::expect_doppelganger("sf3-quantile", lst_survfit2_quantile[[3]])
@@ -149,7 +150,8 @@ test_that("add_quantile() works with ggcuminc()", {
     NA
   )
 
-  skip_on_os("linux")
+  # only check on mac
+  skip_on_ci()
   vdiffr::expect_doppelganger("cuminc1-quantile", lst_cuminc_quantile[[1]])
   vdiffr::expect_doppelganger("cuminc2-quantile", lst_cuminc_quantile[[2]])
   vdiffr::expect_doppelganger("cuminc3-quantile", lst_cuminc_quantile[[3]])
@@ -163,7 +165,8 @@ test_that("add_quantile() works with ggcuminc() and multiple outcomes", {
     NA
   )
 
-  skip_on_os("linux")
+  # only check on mac
+  skip_on_ci()
   vdiffr::expect_doppelganger("cuminc1-quantile-all-outcomes", lst_cuminc_quantile_outcomes[[1]])
   vdiffr::expect_doppelganger("cuminc2-quantile-all-outcomes", lst_cuminc_quantile_outcomes[[2]])
   vdiffr::expect_doppelganger("cuminc3-quantile-all-outcomes", lst_cuminc_quantile_outcomes[[3]])

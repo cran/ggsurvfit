@@ -20,7 +20,7 @@
 #' ```{r eval = FALSE}
 #' survfit2(Surv(time, status) ~ sex, data = df_lung) %>%
 #'   tidy_survfit() %>%
-#'   ggplot(aes(x = time, y = estimate, y
+#'   ggplot(aes(x = time, y = estimate,
 #'              min = conf.low, ymax = conf.low,
 #'              color = strata, fill = strata)) +
 #'   geom_step()
@@ -102,6 +102,7 @@ ggsurvfit <- function(x, type = "survival",
     )
 }
 
+# prepare `aes()` call
 .construct_aes <- function(df, linetype_aes, outcome = NULL) {
   if (!is.null(outcome) && length(outcome) > 1 && isTRUE(linetype_aes)) {
     cli_abort("Cannot specify multiple outcomes with {.code linetype_aes=TRUE}.")
@@ -116,6 +117,7 @@ ggsurvfit <- function(x, type = "survival",
       # survfit = rlang::expr(.data$survfit)
     )
 
+  # if a stratified model, add a `colour=` argument
   if ("strata" %in% names(df)) {
     aes_args <- c(aes_args, list(
       color = rlang::expr(.data$strata)

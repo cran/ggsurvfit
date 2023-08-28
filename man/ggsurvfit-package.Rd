@@ -13,9 +13,9 @@ Ease the creation of time-to-event (i.e. survival) endpoint figures. The modular
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/ddsjoberg/ggsurvfit}
-  \item \url{http://www.danieldsjoberg.com/ggsurvfit/}
-  \item Report bugs at \url{https://github.com/ddsjoberg/ggsurvfit/issues}
+  \item \url{https://github.com/pharmaverse/ggsurvfit}
+  \item \url{https://www.danieldsjoberg.com/ggsurvfit/}
+  \item Report bugs at \url{https://github.com/pharmaverse/ggsurvfit/issues}
 }
 
 }
@@ -25,6 +25,7 @@ Useful links:
 Authors:
 \itemize{
   \item Mark Baillie \email{bailliem@gmail.com}
+  \item Charlotta Fruechtenicht \email{charlotta.fruechtenicht@roche.com} (\href{https://orcid.org/0000-0002-6689-6423}{ORCID})
   \item Steven Haesendonckx \email{shaesen2@its.jnj.com} (\href{https://orcid.org/0000-0001-8222-3686}{ORCID})
   \item Tim Treis \email{tim.treis@outlook.de} (\href{https://orcid.org/0000-0002-9686-4799}{ORCID})
 }

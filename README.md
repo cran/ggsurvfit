@@ -1,16 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ggsurvfit <a href="http://www.danieldsjoberg.com/ggsurvfit/"><img src="man/figures/logo.png" align="right" height="138" /></a>
+# ggsurvfit <a href="https://www.danieldsjoberg.com/ggsurvfit/"><img src="man/figures/logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/ddsjoberg/ggsurvfit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ddsjoberg/ggsurvfit/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/pharmaverse/ggsurvfit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ddsjoberg/ggsurvfit/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
-coverage](https://codecov.io/gh/ddsjoberg/ggsurvfit/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ddsjoberg/ggsurvfit?branch=main)
+coverage](https://codecov.io/gh/pharmaverse/ggsurvfit/branch/main/graph/badge.svg)](https://app.codecov.io/gh/ddsjoberg/ggsurvfit?branch=main)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ggsurvfit)](https://CRAN.R-project.org/package=ggsurvfit)
 [![](https://cranlogs.r-pkg.org/badges/ggsurvfit)](https://cran.r-project.org/package=ggsurvfit)
+[<img src="http://pharmaverse.org/shields/ggsurvfit.svg">](https://pharmaverse.org)
 <!-- badges: end -->
 
 ## Introduction
@@ -49,17 +50,17 @@ install.packages("ggsurvfit")
 ```
 
 You can install the development version from
-[GitHub](https://github.com/ddsjoberg/ggsurvfit) with:
+[GitHub](https://github.com/pharmaverse/ggsurvfit) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ddsjoberg/ggsurvfit")
+devtools::install_github("pharmaverse/ggsurvfit")
 ```
 
 ## Examples
 
 Review the [**figure
-gallery**](http://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html)
+gallery**](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html)
 for many more examples.
 
 The code below constructs a basic {ggsurvfit} figure without
@@ -115,8 +116,8 @@ called, resulting in the following benefits.
 
 ## CDISC ADaM ADTTE
 
-The package also includes gems for those using the [CDISC ADaM
-ADTTE](https://www.cdisc.org/standards/foundational/adam/adam-basic-data-structure-bds-time-event-tte-analyses-v1-0)
+The package also includes gems for those using the [CDISC ADaM ADTTE
+v1.0](https://www.cdisc.org/standards/foundational/adam/adam-basic-data-structure-bds-time-event-tte-analyses-v1-0)
 data model.
 
 If columns `"PARAM"` or `"PARAMCD"` are present in the data frame passed
