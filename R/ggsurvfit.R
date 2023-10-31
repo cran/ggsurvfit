@@ -32,7 +32,8 @@
 #' @examples
 #' # Default publication ready plot
 #' survfit2(Surv(time, status) ~ sex, data = df_lung) %>%
-#'   ggsurvfit()
+#'   ggsurvfit() +
+#'   scale_ggsurvfit(x_scales = list(breaks = seq(0, 30, by = 6)))
 #'
 #' # Changing statistic type
 #' survfit2(Surv(time, status) ~ sex, data = df_lung) %>%
@@ -40,7 +41,8 @@
 #'
 #' # Configuring KM line type to vary by strata
 #' survfit2(Surv(time, status) ~ sex, data = df_lung) %>%
-#'   ggsurvfit(linetype_aes = TRUE)
+#'   ggsurvfit(linetype_aes = TRUE) +
+#'   scale_ggsurvfit()
 #'
 #' # Customizing the plot to your needs
 #' survfit2(Surv(time, status) ~ 1, data = df_lung) %>%
@@ -48,7 +50,8 @@
 #'   add_censor_mark() +
 #'   add_confidence_interval() +
 #'   add_quantile() +
-#'   add_risktable()
+#'   add_risktable() +
+#'   scale_ggsurvfit()
 #' @seealso Visit the [gallery](https://www.danieldsjoberg.com/ggsurvfit/articles/gallery.html) for examples modifying the default figures
 ggsurvfit <- function(x, type = "survival",
                       linetype_aes = FALSE,
@@ -104,36 +107,82 @@ ggsurvfit <- function(x, type = "survival",
 
 # prepare `aes()` call
 .construct_aes <- function(df, linetype_aes, outcome = NULL) {
-  if (!is.null(outcome) && length(outcome) > 1 && isTRUE(linetype_aes)) {
-    cli_abort("Cannot specify multiple outcomes with {.code linetype_aes=TRUE}.")
+  # if `linetype_aes` specified in an inappropriate situation, it is silently ignored
+  if (
+    isTRUE(linetype_aes) &&
+    !(
+      (is.null(outcome) && "strata" %in% names(df) && !isTRUE(getOption("ggsurvfit.switch-color-linetype"))) || # ggsurvfit with strata
+      (!is.null(outcome) && length(outcome) == 1L && "strata" %in% names(df) && !isTRUE(getOption("ggsurvfit.switch-color-linetype"))) || # ggcuminc with 1 outcome and strata
+      (!is.null(outcome) && length(outcome) > 1L && !"strata" %in% names(df) && isTRUE(getOption("ggsurvfit.switch-color-linetype"))) # ggcuminc with 2+ outcomes and no strata
+    )
+  ) {
+    linetype_aes <- FALSE
   }
+
 
   # setting aes() --------------------------------------------------------------
   aes_args <-
     list(
       x = rlang::expr(.data$time),
       y = rlang::expr(.data$estimate)
-      # is_ggsurvfit = TRUE,
-      # survfit = rlang::expr(.data$survfit)
     )
 
   # if a stratified model, add a `colour=` argument
   if ("strata" %in% names(df)) {
-    aes_args <- c(aes_args, list(
-      color = rlang::expr(.data$strata)
-    ))
+    aes_args <-
+      c(
+        aes_args,
+        switch(
+          getOption("ggsurvfit.switch-color-linetype", default = FALSE) %>%
+            as.character(),
+          "FALSE" = list(color = rlang::expr(.data$strata)),
+          "TRUE" = list(linetype = rlang::expr(.data$strata))
+        )
+      )
   }
 
   # setting linetype -----------------------------------------------------------
   if (!is.null(outcome) && length(outcome) > 1) {
-    aes_args <- c(aes_args, list(
-      linetype = rlang::expr(.data$outcome)
-    ))
+    aes_args <-
+      c(
+        aes_args,
+        switch(
+          getOption("ggsurvfit.switch-color-linetype", default = FALSE) %>%
+            as.character(),
+          "FALSE" = list(linetype = rlang::expr(.data$outcome)),
+          "TRUE" = list(color = rlang::expr(.data$outcome))
+        )
+      )
   }
-  if (isTRUE(linetype_aes) && "strata" %in% names(df)) {
-    aes_args <- c(aes_args, list(
-      linetype = rlang::expr(.data$strata)
-    ))
+
+  # adding linetype_aes argument -----------------------------------------------
+  if (isTRUE(linetype_aes) &&
+      "strata" %in% names(df) &&
+      !isTRUE(getOption("ggsurvfit.switch-color-linetype"))) {
+    aes_args <-
+      c(
+        aes_args,
+        switch(
+          getOption("ggsurvfit.switch-color-linetype", default = FALSE) %>%
+            as.character(),
+          "FALSE" = list(linetype = rlang::expr(.data$strata)),
+          "TRUE" = list(color = rlang::expr(.data$strata))
+        )
+      )
+  }
+  if (isTRUE(linetype_aes) &&
+      !is.null(outcome) && length(outcome) > 1 &&
+      isTRUE(getOption("ggsurvfit.switch-color-linetype"))) {
+    aes_args <-
+      c(
+        aes_args,
+        switch(
+          getOption("ggsurvfit.switch-color-linetype", default = FALSE) %>%
+            as.character(),
+          "FALSE" = list(color = rlang::expr(.data$outcome)),
+          "TRUE" = list(linetype = rlang::expr(.data$outcome))
+        )
+      )
   }
 
   aes_args

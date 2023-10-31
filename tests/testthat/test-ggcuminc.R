@@ -12,30 +12,35 @@ test_that("ggcuminc() works", {
     NA
   )
 
-  vdiffr::expect_doppelganger("sf_cuminc1-ggcuminc", lst_ggcuminc_sf[[1]])
-  vdiffr::expect_doppelganger("sf_cuminc2-ggcuminc", lst_ggcuminc_sf[[2]])
-  vdiffr::expect_doppelganger("sf_cuminc3-ggcuminc", lst_ggcuminc_sf[[3]])
-
   expect_error(
     lst_ggcuminc <- list(cuminc1, cuminc2, cuminc3) %>% lapply(ggcuminc),
     NA
   )
 
-  vdiffr::expect_doppelganger("cuminc1-ggcuminc", lst_ggcuminc[[1]])
-  vdiffr::expect_doppelganger("cuminc2-ggcuminc", lst_ggcuminc[[2]])
-  vdiffr::expect_doppelganger("cuminc3-ggcuminc", lst_ggcuminc[[3]])
-
   expect_error(ggcuminc(mtcars))
   expect_error(ggcuminc(cuminc1, outcome = "not an outcome"))
+
+  # the linetype_aes argument is silently ignored here
   expect_error(
     ggcuminc(cuminc1,
              outcome = c("death from cancer", "death other causes"),
-             linetype_aes = TRUE)
+             linetype_aes = TRUE),
+    NA
   )
   expect_error(
     ggcuminc(cuminc1, outcome = c("death from cancer", "death other causes")),
     NA
   )
+
+  skip_on_ci()
+  vdiffr::expect_doppelganger("sf_cuminc1-ggcuminc", lst_ggcuminc_sf[[1]])
+  vdiffr::expect_doppelganger("sf_cuminc2-ggcuminc", lst_ggcuminc_sf[[2]])
+  vdiffr::expect_doppelganger("sf_cuminc3-ggcuminc", lst_ggcuminc_sf[[3]])
+
+  vdiffr::expect_doppelganger("cuminc1-ggcuminc", lst_ggcuminc[[1]])
+  vdiffr::expect_doppelganger("cuminc2-ggcuminc", lst_ggcuminc[[2]])
+  vdiffr::expect_doppelganger("cuminc3-ggcuminc", lst_ggcuminc[[3]])
+
 })
 
 test_that("ggcuminc() works with multiple outcomes", {
@@ -54,7 +59,6 @@ test_that("ggcuminc() works with multiple outcomes", {
     NA
   )
 
-  # only check on mac
   skip_on_ci()
   vdiffr::expect_doppelganger("cuminc1-ggcuminc-all-outcomes", lst_ggcuminc_outcomes[[1]])
   vdiffr::expect_doppelganger("cuminc2-ggcuminc-all-outcomes", lst_ggcuminc_outcomes[[2]])

@@ -86,6 +86,23 @@ and multiply them by 100.
 }\if{html}{\out{</div>}}
 }
 
+\section{Formatting Numbers}{
+
+You can also pass \href{https://glue.tidyverse.org/}{glue}-like syntax to
+\code{risktable_stats} to format the numbers displayed in
+the risk table. This is particularly helpful when working with weighted
+\code{survfit2} objects for which the risk table may display too many decimals by
+default e.g., for weighted patients at risk.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{add_risktable(
+  risktable_stats = c("\{format(round(n.risk, 2), nsmall = 2)\}",
+                      "\{format(round(n.event, 2), nsmall = 2)\}"),
+  stats_label = c("N effective patients at risk",
+                  "N effective events")
+)
+}\if{html}{\out{</div>}}
+}
+
 \section{Competing Risks}{
 
 
@@ -99,7 +116,8 @@ p <-
   survfit2(Surv(time, status) ~ sex, data = df_lung) \%>\%
   ggsurvfit() +
   add_censor_mark() +
-  add_confidence_interval()
+  add_confidence_interval() +
+  scale_ggsurvfit()
 
 # using the function defaults
 p + add_risktable()

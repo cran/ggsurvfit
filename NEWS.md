@@ -1,3 +1,11 @@
+# ggsurvfit 1.0.0
+
+* By default, a model plot created with `ggsurvfit()` or `ggcuminc()` uses the color aesthetic to plot curves by the stratifying variable(s), and further, `ggcuminc()` uses the linetype aesthetic for plots that contain multiple outcomes (i.e. competing events). We now introduce the global option `"ggsurvfit.switch-color-linetype"` to switch these defaults, giving users more flexibility over the output figures. Furthermore, when the `linetype_aes=` argument is called in a situation when it does not apply, it will be silently ignored (previously, an error message _may_ have been thrown). (#166)
+
+* Slightly increased the padding to the right of the plot when `scale_ggsurvfit()` is called. (#165)
+
+* Now exporting the utility function `ggsurvfit_align_plots()` that is used to ensure risktable and the primary plot align. By exporting this function, users will now be able to construct custom risktable graphics. See `?ggsurvfit_align_plots()` for an example. (#175)
+
 # ggsurvfit 0.3.1
 
 * For transformations in `tidy_survfit()` that change the monotonicity of the curve, the `conf.low` and `conf.high` column names are now switched. (#154)

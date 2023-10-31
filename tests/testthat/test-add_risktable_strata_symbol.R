@@ -7,6 +7,26 @@ test_that("add_risktable_strata_symbol() works", {
       add_risktable(risktable_group = "risktable_stats"),
     NA
   )
+  expect_error(
+    (p + add_risktable_strata_symbol(symbol = "O")) %>% ggsurvfit_build(),
+    NA
+  )
+  expect_error(
+    (p + add_risktable_strata_symbol(symbol = "O")) %>% ggsurvfit_build(),
+    NA
+  )
+
+  # works with univariate model
+  expect_error(
+    ggsymbol_univariate <-
+      survfit2(Surv(time, status) ~ 1, data = df_lung) %>%
+      ggsurvfit() +
+      add_risktable(risktable_stats = "n.risk", risktable_group = "risktable_stats") +
+      add_risktable_strata_symbol(vjust = 0.3, symbol = "O"),
+    NA
+  )
+
+
 
   skip_on_ci()
   vdiffr::expect_doppelganger(
@@ -16,16 +36,6 @@ test_that("add_risktable_strata_symbol() works", {
   vdiffr::expect_doppelganger(
     "add_risktable_strata_symbol-circle",
     p + add_risktable_strata_symbol(symbol = "\U25CF")
-  )
-
-  # works with univariate model
-  expect_error(
-    ggsymbol_univariate <-
-      survfit2(Surv(time, status) ~ 1, data = df_lung) %>%
-      ggsurvfit() +
-      add_risktable(risktable_stats = "n.risk", risktable_group = "risktable_stats") +
-      add_risktable_strata_symbol(vjust = 0.3),
-    NA
   )
   vdiffr::expect_doppelganger(
     "add_risktable_strata_symbol-uni",
@@ -298,3 +308,4 @@ test_that(".match_strata_level_to_color() works", {
     c("Overall" = "#00BFC4") # blue
   )
 })
+

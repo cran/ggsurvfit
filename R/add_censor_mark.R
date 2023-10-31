@@ -13,7 +13,8 @@
 #' survfit2(Surv(time, status) ~ 1, data = df_lung) %>%
 #'   ggsurvfit() +
 #'   add_confidence_interval() +
-#'   add_censor_mark()
+#'   add_censor_mark() +
+#'   scale_ggsurvfit()
 #' @inherit ggsurvfit seealso
 add_censor_mark <- function(...) {
   add_censor_mark_empty_list <- list()
@@ -56,11 +57,14 @@ update_add_censor_mark <- function(p, add_censor_mark_empty_list) {
     )
 
   # if a stratified model, add a `colour=` argument
-  if ("strata" %in% names(ggplot2::ggplot_build(p)$plot$data)) {
-    lst_aes <- c(
-      lst_aes,
-      colour = rlang::expr(.data$strata)
-    )
+  if ("strata" %in% names(ggplot2::ggplot_build(p)$plot$data) &&
+      isFALSE(getOption("ggsurvfit.switch-color-linetype", default = FALSE))) {
+    lst_aes <- c(lst_aes, list(color = rlang::expr(.data$strata)))
+  }
+  if ("outcome" %in% names(ggplot2::ggplot_build(p)$plot$data) &&
+      length(unique(ggplot2::ggplot_build(p)$plot$data$outcome)) > 1L &&
+      isTRUE(getOption("ggsurvfit.switch-color-linetype", default = FALSE))) {
+    lst_aes <- c(lst_aes, list(color = rlang::expr(.data$outcome)))
   }
 
   lst_aes
