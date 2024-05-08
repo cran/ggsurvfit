@@ -12,13 +12,14 @@
 #' @param type type of statistic to report.
 #' Available for Kaplan-Meier estimates only.
 #' Default is `"survival"`.
-#' Must be one of the following:
+#' Must be one of the following or a function:
 #' ```{r, echo = FALSE}
 #' dplyr::tribble(
 #'   ~type,          ~transformation,
 #'   '`"survival"`', '`x`',
 #'   '`"risk"`',     '`1 - x`',
 #'   '`"cumhaz"`',   '`-log(x)`',
+#'   '`"cloglog"`',   '`log(-log(x))`',
 #' ) %>%
 #' knitr::kable()
 #' ```
@@ -31,7 +32,7 @@
 #'   tidy_survfit()
 tidy_survfit <- function(x,
                          times = NULL,
-                         type = c("survival", "risk", "cumhaz")) {
+                         type = c("survival", "risk", "cumhaz", "cloglog")) {
   # check inputs ---------------------------------------------------------------
   if (!inherits(x, "survfit")) {
     cli_abort(c("!" = "Argument {.code x} must be class {.cls survfit}.",
@@ -39,13 +40,17 @@ tidy_survfit <- function(x,
   }
   if (inherits(x, "survfitms")) type <- "cuminc"
   else if (is.character(type)) type <- match.arg(type)
-  if (!is.null(times) && any(times < 0)) {
-    cli_abort("The {.var times} cannot be negative.")
-  }
+
 
   # create base tidy tibble ----------------------------------------------------
+  if (is.null(x$start.time) && min(x$time) < 0) {
+    cli::cli_inform(c(
+      "!" ="Setting start time to {.val {min(x$time)}}.",
+      "i" = "Specify {.code ggsurvfit::survfit2(start.time)} to override this default."
+    ))
+  }
   df_tidy <-
-    survival::survfit0(x, start.time = 0) %>%
+    survival::survfit0(x) %>%
     broom::tidy()
 
   # if a competing risks model, filter on the outcome of interest
@@ -53,12 +58,12 @@ tidy_survfit <- function(x,
     df_tidy <-
       df_tidy %>%
       dplyr::filter(!.data$state %in% "(s0)") %>%
-      dplyr::select(-dplyr::all_of("n.risk")) %>%
+      dplyr::select(-dplyr::all_of(c("n.risk", "n.censor"))) %>%
       dplyr::left_join(
-        df_tidy %>% dplyr::filter(.data$state %in% "(s0)") %>% dplyr::select(dplyr::any_of(c("strata", "time", "n.risk"))),
+        df_tidy %>% dplyr::filter(.data$state %in% "(s0)") %>% dplyr::select(dplyr::any_of(c("strata", "time", "n.risk", "n.censor"))),
         by = intersect(c("strata", "time"), names(df_tidy))
       ) %>%
-      dplyr::relocate("n.risk", .after = "time") %>%
+      dplyr::relocate(dplyr::any_of(c("n.risk", "n.censor")), .after = "time") %>%
       dplyr::rename(outcome = "state")
   }
 
@@ -74,7 +79,7 @@ tidy_survfit <- function(x,
   df_tidy <- .keep_selected_times(df_tidy, times = times)
 
   # transform survival estimate as specified
-  df_tidy <- .transform_estimate(df_tidy, type = type)
+  df_tidy <- .transform_estimate(df_tidy, type = type, survfit = x)
 
   # improve strata label, if possible
   df_tidy <- .construct_strata_label(df_tidy, survfit = x)
@@ -166,7 +171,7 @@ tidy_survfit <- function(x,
   gsub(pattern = "(\\W)", replacement = "\\\\\\1", x = x)
 }
 
-.transform_estimate <- function(x, type) {
+.transform_estimate <- function(x, type, survfit) {
   # select transformation function ---------------------------------------------
   if (rlang::is_string(type)) {
     .transfun <-
@@ -176,13 +181,14 @@ tidy_survfit <- function(x,
              risk = function(y) 1 - y,
              # survfit object contains an estimate for Cumhaz and SE based on Nelson-Aalen with or without correction for ties
              # However, no CI is calculated automatically. For plotting, the MLE estimator is used for convenience.
-             cumhaz = function(y) -log(y)
+             cumhaz = function(y) -log(y),
+             cloglog = function(y) log(-log(y))
       )
   } else {
     .transfun <- type
   }
   if (!rlang::is_function(.transfun)) {
-    cli_abort("The {.var type} argument must be one of {.val {c('survival', 'risk', 'cumhaz')}}, or a function.")
+    cli_abort("The {.var type} argument must be one of {.val {c('survival', 'risk', 'cumhaz', 'cloglog')}}, or a function.")
   }
 
   # transform estimates --------------------------------------------------------
@@ -205,9 +211,16 @@ tidy_survfit <- function(x,
       estimate_type_label =
         dplyr::case_when(
           rlang::is_string(.env$type) && .env$type %in% "survival" ~ "Survival Probability",
-          rlang::is_string(.env$type) && .env$type %in% "cuminc" ~ "Cumulative Incidence",
+          rlang::is_string(.env$type) &&
+            .env$type %in% "cuminc" &&
+            !is.null(.env$survfit$transitions) &&
+            sum(apply(.env$survfit$transitions, MARGIN = 1, FUN = sum) > 0L) == 1L ~ "Cumulative Incidence",
+          rlang::is_string(.env$type) &&
+            .env$type %in% "cuminc" &&
+            !is.null(.env$survfit$transitions) ~ "Probability in State",
           rlang::is_string(.env$type) && .env$type %in% "risk" ~ "Risk",
           rlang::is_string(.env$type) && .env$type %in% "cumhaz" ~ "Cumulative Hazard",
+          rlang::is_string(.env$type) && .env$type %in% "cloglog" ~ "Log Minus Log Survival",
           TRUE ~ rlang::expr_deparse(.transfun)
         )
     )
@@ -337,7 +350,8 @@ tidy_survfit <- function(x,
              "survival" = "decreasing",
              "cuminc" = "increasing",
              "risk" = "increasing",
-             "cumhaz" = "increasing"
+             "cumhaz" = "increasing",
+             "cloglog" = "increasing"
       )
   }
   else {

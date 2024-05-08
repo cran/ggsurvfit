@@ -31,6 +31,15 @@ test_that("ggsurvfit() works", {
   vdiffr::expect_doppelganger("sf3-ggsurvfit_cumhaz", lst_survfit2_cumhaz[[3]])
 
   expect_error(
+    lst_survfit2_cloglog <-
+      list(sf1, sf2, sf3) %>% lapply(function(x) ggsurvfit(x, type = "cloglog")),
+    NA
+  )
+  vdiffr::expect_doppelganger("sf1-ggsurvfit_cloglog", lst_survfit2_cloglog[[1]])
+  vdiffr::expect_doppelganger("sf2-ggsurvfit_cloglog", lst_survfit2_cloglog[[2]])
+  vdiffr::expect_doppelganger("sf3-ggsurvfit_cloglog", lst_survfit2_cloglog[[3]])
+
+  expect_error(
     lst_survfit2_custom <-
       list(sf1, sf2, sf3) %>% lapply(function(x) ggsurvfit(x, type = function(x) 1 - x)),
     NA
@@ -66,7 +75,7 @@ test_that("ggsurvfit() works", {
   # test the default ADTTE x-axis label comes from PARAM column
   expect_equal(
     ggsurvfit(survfit2(Surv_CNSR() ~ 1, data = adtte)) %>%
-      ggplot2::ggplot_build() %>%
+      {suppressWarnings(ggplot2::ggplot_build(.))} %>%
       `[[`("plot") %>%
       `[[`("labels") %>%
       `[[`("x"),
@@ -117,7 +126,7 @@ test_that("ggsurvfit() works", {
   expect_equal(
     suppressWarnings(survfit2(Surv_CNSR() ~ 1, data = df_param2)) %>%
       ggsurvfit() %>%
-      ggplot2::ggplot_build() %>%
+      {suppressWarnings(ggplot2::ggplot_build(.))} %>%
       `[[`("plot") %>%
       `[[`("labels") %>%
       `[[`("x"),
@@ -128,7 +137,7 @@ test_that("ggsurvfit() works", {
   expect_equal(
     survfit2(Surv_CNSR() ~ PARAM, data = df_param2) %>%
       ggsurvfit() %>%
-      ggplot2::ggplot_build() %>%
+      {suppressWarnings(ggplot2::ggplot_build(.))} %>%
       `[[`("plot") %>%
       `[[`("labels") %>%
       `[[`("x"),

@@ -1,5 +1,6 @@
 #' Plot Cumulative Incidence
 #'
+#' @description
 #' Plot a cumulative incidence object created with `tidycmprsk::cuminc()`
 #' or a multi-state object created with `survfit2()`.
 #' Read more on multi-state models [here](https://cran.r-project.org/package=survival/vignettes/compete.pdf).
@@ -14,7 +15,7 @@
 #'
 #' @section Details:
 #'
-#' *Why do we not use `cmprsk::cuminc()`?*
+#' *Why not use `cmprsk::cuminc()`?*
 #'
 #' The implementation of `cmprsk::cuminc()` does not provide the data required
 #' to construct the risk table. Moreover, the `tidycmprsk::cuminc()` has a
